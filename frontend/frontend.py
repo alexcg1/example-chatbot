@@ -1,8 +1,23 @@
-import streamlit as st
 from jina import Client
+from config import SERVER, PORT, TOP_K
 from docarray import Document
-from config import PORT, TOP_K, SERVER
+import streamlit as st
 from streamlit_chat import message
+
+st.set_page_config(page_title="Streamlit Chat - Demo", page_icon=":robot:")
+
+st.header("Jina Chatbot")
+st.markdown("[Github](https://github.com/ai-yash/st-chat)")
+
+if "generated" not in st.session_state:
+    st.session_state["generated"] = []
+
+if "past" not in st.session_state:
+    st.session_state["past"] = []
+
+
+def query(payload):
+    return search_by_text(payload["inputs"]["text"])
 
 
 def search_by_text(input, server=SERVER, port=PORT, limit=TOP_K):
@@ -13,28 +28,37 @@ def search_by_text(input, server=SERVER, port=PORT, limit=TOP_K):
         return_results=True,
         show_progress=True,
     )
-    matches = response[0].matches
-
-    return matches
-
-st.set_page_config(
-    page_title="Jina Chatbot",
-    page_icon=":robot:"
-)
-
-st.title("COVID-19 Chatbot")
-message_area = st.container()
-
-question = st.text_input(label="Question")
-search_button = st.button(label="Search")
+    match = response[0].matches[0].tags["answer"]
 
 
-if search_button:
-    matches = search_by_text(question)
-    for match in matches:
-        with message_area:
-            message(question, is_user=True)
-            message(f"""
-{match.tags['title']}
-{match.tags['answer']}
-                """)
+    return match
+
+
+def get_text():
+    input_text = st.text_input("What's your question?", "", key="input")
+    return input_text
+
+
+user_input = get_text()
+
+if user_input:
+    output = {}
+    output["generated_text"] = query(
+        {
+            "inputs": {
+                "past_user_inputs": st.session_state.past,
+                "generated_responses": st.session_state.generated,
+                "text": user_input,
+            },
+            "parameters": {"repetition_penalty": 1.33},
+        }
+    )
+
+    st.session_state.past.append(user_input)
+    st.session_state.generated.append(output["generated_text"])
+
+if st.session_state["generated"]:
+
+    for i in range(len(st.session_state["generated"]) - 1, -1, -1):
+        message(st.session_state["generated"][i], key=str(i))
+        message(st.session_state["past"][i], is_user=True, key=str(i) + "_user")
