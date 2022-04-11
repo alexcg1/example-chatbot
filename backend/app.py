@@ -1,22 +1,12 @@
 from docarray import DocumentArray, Document
 from jina import Flow
-from config import DATA_FILE, DATABASE_NAME, TABLE_NAME
+from config import DATA_FILE, NUM_DOCS, PORT
 import click
 
 
 
-# docs = DocumentArray(
-    # storage="sqlite", config={"connection": DATABASE_NAME, "table_name": TABLE_NAME}
-# )
-
-
-qa_docs = DocumentArray.from_csv(
-    DATA_FILE, field_resolver={"question": "text"}, size=10
-)
-# docs.extend(qa_docs)
-
 flow = (
-    Flow(protocol="http", port=23456)
+    Flow(protocol="http", port=PORT)
     .add(
         name="encoder",
         uses="jinahub://TransformerTorchEncoder",
@@ -29,13 +19,15 @@ flow = (
 )
 
 
-def index():
-    # os.remove(DATABASE_NAME)
+def index(num_docs=NUM_DOCS):
+    qa_docs = DocumentArray.from_csv(
+        DATA_FILE, field_resolver={"question": "text"}, size=num_docs
+    )
     with flow:
         flow.index(qa_docs, show_progress=True)
 
 
-def search(string: str):
+def search_grpc(string: str):
     doc = Document(text=string)
     with flow:
         results = flow.search(doc)
@@ -45,10 +37,27 @@ def search(string: str):
     for match in results[0].matches:
         print(match.text)
 
-def search_restful():
+
+def search():
     with flow:
         flow.block()
 
 
-index()
-search_restful()
+@click.command()
+@click.option(
+    "--task",
+    "-t",
+    type=click.Choice(["index", "search"], case_sensitive=False),
+)
+@click.option("--num_docs", "-n", default=NUM_DOCS)
+def main(task: str, num_docs):
+    if task == "index":
+        index(num_docs=num_docs)
+    elif task == "search":
+        search()
+    else:
+        print("Please add '-t index' or '-t search' to your command")
+
+
+if __name__ == "__main__":
+    main()
