@@ -4,7 +4,7 @@ from docarray import Document
 import streamlit as st
 from streamlit_chat import message
 
-st.set_page_config(page_title="Streamlit Chat - Demo", page_icon=":robot:")
+st.set_page_config(page_title="Jina Chat Bot", page_icon=":robot:")
 
 st.header("Jina Chatbot")
 st.markdown("[Github](https://github.com/ai-yash/st-chat)")
@@ -30,16 +30,10 @@ def search_by_text(input, server=SERVER, port=PORT, limit=TOP_K):
     )
     match = response[0].matches[0].tags["answer"]
 
-
     return match
 
 
-def get_text():
-    input_text = st.text_input("What's your question?", "", key="input")
-    return input_text
-
-
-user_input = get_text()
+user_input = st.text_input("What's your question?", "", key="input")
 
 if user_input:
     output = {}
@@ -57,8 +51,10 @@ if user_input:
     st.session_state.past.append(user_input)
     st.session_state.generated.append(output["generated_text"])
 
+message_container = st.container()
 if st.session_state["generated"]:
 
     for i in range(len(st.session_state["generated"]) - 1, -1, -1):
-        message(st.session_state["generated"][i], key=str(i))
-        message(st.session_state["past"][i], is_user=True, key=str(i) + "_user")
+        with message_container:
+            message(st.session_state["past"][i], is_user=True, key=str(i) + "_user")
+            message(st.session_state["generated"][i], key=str(i))
