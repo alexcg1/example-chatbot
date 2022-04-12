@@ -1,4 +1,4 @@
-# Jina + Streamlit Chatbot
+# Jina Chatbot
 
 This simple example adapts [Jina Hello Chatbot](https://docs.jina.ai/get-started/hello-world/covid-19-chatbot/) in the following ways:
 
@@ -18,16 +18,11 @@ This simple example adapts [Jina Hello Chatbot](https://docs.jina.ai/get-started
 1. `cd frontend`
 2. `python frontend.py`
 
+## Configure
+
+- **Backend:** `backend/config.py`
+- **Frontend:** `frontend/config.py` and `frontend/.streamlit/config.toml`
+
 ## Deploy
 
 `docker-compose up`
-
-## Limitations
-
-This is still a WIP, so right now:
-
-- No dataset getter
-- All data is indexed at start
-- Only a subset of data is indexed to keep it quick
-
-All of these are relatively simple to fix
