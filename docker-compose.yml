@@ -18,7 +18,7 @@ services:
     build: backend
     ports:
       - 23456:23456
-    volumes:
-      - ./workspace:/workspace
-      - ./data:/data
+    #volumes:
+      #- ./workspace:/workspace
+      #- ./data:/data
     restart: always
