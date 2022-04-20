@@ -4,16 +4,17 @@ from docarray import Document
 import streamlit as st
 from streamlit_chat import message
 
-st.set_page_config(page_title="Jina Chat Bot", page_icon=":robot:")
+st.set_page_config(page_title="Jina COVID-19 Chatbot", page_icon=":robot:")
 
-st.header("Jina Chatbot")
-st.markdown("[Github](https://github.com/ai-yash/st-chat)")
+st.header("🤖 Jina COVID-19 Chatbot")
 
 if "generated" not in st.session_state:
     st.session_state["generated"] = []
 
 if "past" not in st.session_state:
     st.session_state["past"] = []
+
+st.sidebar.markdown("# Introduction\n\nThis chatbot is built using: \n\n - [**DocArray**](https://docarray.jina.ai): The data structure for unstructured data\n- [**Jina**](https://github.com/jina-ai/jina/): Cloud native neural search framework\n- [**Streamlit**](https://streamlit.io/) - frontend\n- [**Streamlit-chat**](https://github.com/AI-Yash/st-chat): Chat plugin for Streamlit\n\n## Useful links\n\n- [Code repository](https://github.com/alexcg1/example-chatbot)\n - [COVID-QA dataset from Kaggle](https://www.kaggle.com/xhlulu/covidqa/)\n - [Jina Hello Chatbot](https://docs.jina.ai/get-started/hello-world/covid-19-chatbot/) (the basis for this example)\n\n## Disclaimer\n\nThis chatbot is intended only as a technical demonstration. **DO NOT TAKE MEDICAL ADVICE FROM STRANGE BOTS ON THE INTERNET** (especially ones with outdated datasets)")
 
 
 def query(payload):
